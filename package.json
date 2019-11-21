@@ -1,0 +1,63 @@
+{
+  "name": "gform-trello-magic",
+  "description": "Setup with puggle",
+  "version": "0.0.0",
+  "private": true,
+  "repository": "digitalinteraction/gform-trello-magic",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "coverage": "jest --coverage",
+    "cli": "node -r dotenv/config -r ts-node/register src/cli.ts",
+    "lint": "eslint src",
+    "prettier": "prettier --write '**/*.{js,json,css,md,ts,tsx}'",
+    "preversion": "npm run test -s",
+    "start": "node -r dotenv/config src/index.js",
+    "test": "jest"
+  },
+  "keywords": [],
+  "engines": {
+    "node": ">=8"
+  },
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "got": "^9.6.0",
+    "prompts": "^2.3.0",
+    "valid-env": "^1.0.1",
+    "yargs": "^15.0.2"
+  },
+  "devDependencies": {
+    "@google/clasp": "^2.3.0",
+    "@types/chalk": "^2.2.0",
+    "@types/express": "^4.17.2",
+    "@types/google-apps-script": "^1.0.6",
+    "@types/got": "^9.6.9",
+    "@types/prompts": "^2.0.3",
+    "@types/yargs": "^13.0.3",
+    "inquirer": "^7.0.0",
+    "jest": "^24.7.1",
+    "lint-staged": "^8.1.4",
+    "prettier": "^1.16.4",
+    "ts-node": "^8.5.2",
+    "typescript": "^3.7.2",
+    "yorkie": "^2.0.0"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,json,css,md,ts,tsx}": [
+      "prettier --write",
+      "git add"
+    ]
+  }
+}

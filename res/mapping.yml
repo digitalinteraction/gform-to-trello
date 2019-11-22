@@ -1,0 +1,48 @@
+fields:
+  380425739:
+    path: matching.industry
+    type: csv
+  694048362:
+    path: matching.thirdSectorDomain
+    type: csv
+  1164188933:
+    path: matching.academic
+    type: csv
+  1237184831:
+    path: matching.thirdSectorGroup
+    type: csv
+
+  782825089:
+    path: personal.role
+    type: text
+  1632174838:
+    path: personal.name
+    type: text
+
+  813013788:
+    path: issue.id
+    type: text
+  735916625:
+    path: issue.title
+    type: text
+  1134118836:
+    path: issue.importance
+    type: text
+  1469587775:
+    path: issue.themes
+    type: csv
+
+titleKey: issue.title
+
+labels:
+  matching.industry:
+    prefix: needs:industry
+
+  matching.thirdSectorDomain:
+    prefix: needs:3rd-domain
+
+  matching.academic:
+    prefix: needs:academic
+
+  matching.thirdSectorGroup:
+    prefix: needs:3rd-group

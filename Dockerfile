@@ -17,4 +17,4 @@ ENV NODE_ENV production
 RUN npm ci &> /dev/null
 COPY --from=builder /app/dist /app/dist
 EXPOSE 3000
-CMD [ "npm", "start", "-s" ]
+CMD [ "npm", "start", "-s", "server" ]

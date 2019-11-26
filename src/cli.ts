@@ -8,25 +8,30 @@ import debugFn from 'debug'
 import { validateEnv } from 'valid-env'
 import { TrelloClient } from './trello-client'
 import { runServer } from './server'
+import { TrelloColor } from './structs'
 
 const debug = debugFn('catalyst:cli')
 
-// type Block<T extends any[], U extends any> = (...args: T) => U
+type Block<T extends any[], U extends any> = (...args: T) => U
 
-// function wrapper<T extends any[], U extends any>(
-//   name: string,
-//   block: Block<T, U>
-// ): Block<T, U> {
-//   return (...args: T) => {
-//     try {
-//       debug(name)
-//       return block(...args)
-//     } catch (error) {
-//       console.log(error)
-//       throw new Error(process.exit(1))
-//     }
-//   }
-// }
+function wrap<T extends any[], U extends any>(
+  name: string,
+  block: Block<T, U>
+): Block<T, U> {
+  return (...args: T) => {
+    try {
+      debug(name)
+      return block(...args)
+    } catch (error) {
+      console.log(error)
+      throw new Error(process.exit(1))
+    }
+  }
+}
+
+function foundMessage(value: any[], thing: string, prefix = 'Found ') {
+  return `${prefix}${value.length} ${thing}${value.length !== 1 ? 's' : ''}`
+}
 
 function makeTrelloClient() {
   validateEnv(['TRELLO_APP_KEY', 'TRELLO_TOKEN'])
@@ -37,15 +42,21 @@ function makeTrelloClient() {
   )
 }
 
+function addBoardId<T>(yargs: yargs.Argv<T>, info: string) {
+  return yargs.positional('boardId', {
+    type: 'string',
+    describe: info,
+    default: process.env.TRELLO_BOARD_ID
+  })
+}
+
 yargs.help().alias('h', 'help')
 
 yargs.command(
   'trello:boards',
   'Get boards and their ids',
   yargs => yargs.option('showClosed', { type: 'boolean', default: false }),
-  async argv => {
-    debug('trello:boards')
-
+  wrap('trello:boards', async argv => {
     const client = makeTrelloClient()
     const orgs = await client.fetchOrganizations()
     const allBoards = await client.fetchBoards()
@@ -55,7 +66,7 @@ yargs.command(
     let orgNames = new Map<string, string>()
     for (let org of orgs) orgNames.set(org.id, org.displayName)
 
-    console.log(`Found ${filteredBoards.length} boards`)
+    console.log(foundMessage(filteredBoards, 'label'))
 
     for (let board of filteredBoards) {
       console.log(
@@ -65,28 +76,81 @@ yargs.command(
         chalk.grey(orgNames.get(board.idOrganization) || 'Personal')
       )
     }
-  }
+  })
 )
 
 yargs.command(
-  'trello:tags [boardId]',
-  'Fetch tags from the trello board',
-  yargs =>
-    yargs.positional('boardId', {
-      type: 'string',
-      describe: 'The id of the board to get tags from',
-      default: process.env.TRELLO_BOARD_ID
-    }),
-  async argv => {
-    debug('trello:tags')
-
+  'trello:labels [boardId]',
+  'Fetch labels from the trello board',
+  yargs => {
+    return addBoardId(yargs, 'The id of the board to get tags from')
+  },
+  wrap('trello:labels', async argv => {
     if (!argv.boardId) throw new Error("'boardId' not passed")
 
     const client = makeTrelloClient()
-    const tags = await client.fetchLabels(argv.boardId)
+    const labels = await client.fetchLabels(argv.boardId)
 
-    console.log(tags)
-  }
+    console.log(foundMessage(labels, 'label'))
+
+    for (let label of labels) {
+      console.log(
+        `-`,
+        chalk.green(label.id),
+        label.name || chalk.yellow('<no_name>'),
+        chalk.grey(label.color)
+      )
+    }
+  })
+)
+
+yargs.command(
+  'trello:lists [boardId]',
+  'Fetch the lists on a trello board',
+  yargs => {
+    return addBoardId(yargs, 'The id of the board to get lists from')
+  },
+  wrap('trello:lists', async argv => {
+    if (!argv.boardId) throw new Error("'boardId' not passed")
+
+    const client = makeTrelloClient()
+    const lists = await client.fetchLists(argv.boardId)
+
+    console.log(foundMessage(lists, 'list'))
+
+    for (let list of lists) {
+      console.log(
+        '-',
+        chalk.green(list.id),
+        list.name,
+        chalk.grey(foundMessage(list.cards, 'card', ''))
+      )
+    }
+  })
+)
+
+yargs.command(
+  'trello:new:label <name> <color> [boardId]',
+  'Add a label',
+  yargs => {
+    return addBoardId(yargs, 'The id of the board to get lists from')
+      .positional('name', { type: 'string' })
+      .positional('color', { type: 'string' })
+  },
+  wrap('trello:new:label', async argv => {
+    if (!argv.boardId) throw new Error("'boardId' not passed")
+
+    const [colorErr] = TrelloColor.validate(argv.color)
+    if (colorErr) throw new Error('Invalid color')
+
+    const client = makeTrelloClient()
+    const label = await client.createLabel(argv.boardId, {
+      name: argv.name!,
+      color: argv.color! as any
+    })
+
+    console.log(label)
+  })
 )
 
 yargs.command(
@@ -98,9 +162,7 @@ yargs.command(
       describe: 'Your trello app key, from https://trello.com/app-key',
       default: process.env.TRELLO_APP_KEY
     }),
-  argv => {
-    debug('trello:auth')
-
+  wrap('trello:auth', async argv => {
     if (!argv.appKey) throw new Error('No appKey provided')
 
     let url =
@@ -115,7 +177,7 @@ yargs.command(
 
     console.log(`Open ${url}`)
     console.log('To get your token')
-  }
+  })
 )
 
 yargs.command(
@@ -127,10 +189,10 @@ yargs.command(
       describe: 'The port to run on',
       default: 3000
     }),
-  argv => {
+  wrap('server', async argv => {
     debug('server')
     runServer(argv)
-  }
+  })
 )
 
 yargs.command(

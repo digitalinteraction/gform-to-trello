@@ -1,7 +1,20 @@
+export type TrelloColor =
+  | 'yellow'
+  | 'purple'
+  | 'blue'
+  | 'red'
+  | 'green'
+  | 'orange'
+  | 'black'
+  | 'sky'
+  | 'pink'
+  | 'lime'
+  | null
+
 export interface TrelloLabel {
   id: string
   name: string
-  color: string
+  color: TrelloColor
 }
 
 export interface TrelloMembership {
@@ -17,7 +30,7 @@ export interface TrelloBoard {
   id: string
   name: string
   desc: string
-  descData: string | null
+  descData: any
   closed: boolean
   idOrganization: string
   pinned: boolean
@@ -35,7 +48,7 @@ export interface TrelloBoard {
 export interface TrelloOrganization {
   id: string
   desc: string
-  descData: string | null
+  descData: any
   displayName: string
   invitations: any
   invited: any
@@ -49,6 +62,48 @@ export interface TrelloOrganization {
   website: string
 }
 
+// https://developers.trello.com/reference#list-object
+export interface TrelloList {
+  id: string
+  name: string
+  closed: boolean
+  idBoard: string
+  pos: number
+  subscribed: boolean
+  softLimit: number | null
+}
+
+export interface TrelloCard {
+  id: string
+  // checkItemStates: null
+  closed: boolean
+  dateLastActivity: string
+  desc: string
+  descData: any
+  dueReminder: string | null
+  idBoard: string
+  idList: string
+  idMembersVoted: string[]
+  idShort: number
+  idAttachmentCover: string | null
+  idLabels: string[]
+  manualCoverAttachment: boolean
+  name: string
+  pos: number
+  shortLink: string
+  isTemplate: boolean
+  badges: any
+  dueComplete: boolean
+  due: string | null
+  idChecklists: string[]
+  idMembers: string[]
+  labels: TrelloLabel[]
+  shortUrl: string
+  subscribed: boolean
+  url: string
+  cover: any
+}
+
 export interface MappingConfig {
   titleKey: string
   fields: FieldMapping
@@ -58,14 +113,20 @@ export interface MappingConfig {
 export interface FieldMapping {
   [id: string]: {
     path: string
-    type: 'csv' | 'text'
   }
 }
 
 export interface LabelMapping {
-  [fieldPath: string]: { prefix: string }
+  [fieldPath: string]: { prefix: string; color: TrelloColor }
+}
+
+export interface FieldResponse {
+  type: string
+  index: number
+  title: string
+  value: string | string[]
 }
 
 export interface FormResponse {
-  [idx: string]: string | string[]
+  [idx: string]: FieldResponse
 }

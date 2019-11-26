@@ -6,9 +6,10 @@ import { TrelloClient } from './trello-client'
 import {
   loadTemplate,
   loadMapping,
-  createCardFromFormResponse
+  generateCardFromFormResponse,
+  createCardAndMatchLabels,
+  NewCard
 } from './processor'
-import { join } from 'path'
 
 const debug = debugFn('catalyst:server')
 
@@ -23,8 +24,12 @@ export async function runServer(args: RunArgs) {
     'TRELLO_APP_KEY',
     'TRELLO_TOKEN',
     'TRELLO_BOARD_ID',
+    'TRELLO_INBOX_LIST_ID',
     'HOOK_SECRET'
   ])
+
+  const boardId = process.env.TRELLO_BOARD_ID!
+  const inboxId = process.env.TRELLO_INBOX_LIST_ID!
 
   const trello = new TrelloClient(
     process.env.TRELLO_APP_KEY!,
@@ -50,18 +55,25 @@ export async function runServer(args: RunArgs) {
           return res.status(401).send('Bad authentication')
         }
 
-        const labels = await trello.fetchLabels(process.env.TRELLO_BOARD_ID!)
+        const labels = await trello.fetchLabels(boardId)
 
         FormResponseStruct.assert(response)
 
-        let card = createCardFromFormResponse(
+        let card = generateCardFromFormResponse(
           response,
           mappingConfig,
           labels,
           data => contentTemplate.render(data)
         )
 
-        return res.send(card)
+        const newCard = await createCardAndMatchLabels(
+          card,
+          trello,
+          boardId,
+          inboxId
+        )
+
+        return res.send(newCard)
       } catch (error) {
         console.log(error.message)
         return res.status(400).send('Failed')

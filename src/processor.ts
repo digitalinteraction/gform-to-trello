@@ -2,24 +2,26 @@ import nunjucks from 'nunjucks'
 import fs from 'fs-extra'
 import yaml from 'yaml'
 import slugify from 'slugify'
+import debugFn from 'debug'
 
 import nestedGet from 'lodash.get'
 import nestedSet from 'lodash.set'
-import { struct } from 'superstruct'
 import {
   FormResponse,
   FieldMapping,
   TrelloLabel,
   LabelMapping,
-  MappingConfig
+  MappingConfig,
+  TrelloColor
 } from './types'
 import { MappingConfigStruct } from './structs'
+import { TrelloClient } from './trello-client'
 
 export type SimpleTrelloLabel = Pick<TrelloLabel, 'id' | 'name'>
 
 export type MatchedLabel =
   | { type: 'link'; id: string }
-  | { type: 'create'; name: string }
+  | { type: 'create'; name: string; color: TrelloColor }
 
 export interface NewCard {
   title: string
@@ -27,40 +29,41 @@ export interface NewCard {
   labels: MatchedLabel[]
 }
 
+const debug = debugFn('catalyst:processor')
+
 const slugOptions = {
-  lower: true
+  lower: true,
+  remove: /[*+~.()[\]{}'"!:@]/g
 }
 
 export async function loadTemplate(path: string): Promise<nunjucks.Template> {
+  debug(`#loadTemplate path=${path}`)
   return nunjucks.compile(await fs.readFile(path, 'utf8'))
 }
 
 export async function loadMapping(path: string): Promise<MappingConfig> {
+  debug(`#loadMapping path=${path}`)
   return MappingConfigStruct(yaml.parse(await fs.readFile(path, 'utf8')))
 }
 
 export function parseResponse(
-  response: FormResponse,
+  formResponse: FormResponse,
   mapping: FieldMapping
 ): any {
+  debug(`#parseResponse`)
+
   const newObject: any = {}
 
   for (const id in mapping) {
-    const { path, type } = mapping[id]
+    const { path } = mapping[id]
 
-    const rawValue: string = Array.isArray(response[id]) ? response[id][0] : ''
-    let value
+    const fieldResponse = formResponse[id]
 
-    switch (type) {
-      case 'text':
-        value = rawValue
-        break
-      case 'csv':
-        value = rawValue.split(',').map(v => v.trim())
-        break
+    if (fieldResponse !== undefined) {
+      nestedSet(newObject, path, fieldResponse.value)
+    } else {
+      nestedSet(newObject, path, null)
     }
-
-    nestedSet(newObject, path, value)
   }
 
   return newObject
@@ -71,10 +74,12 @@ export function findLabels(
   labelMapping: LabelMapping,
   trelloLabels: SimpleTrelloLabel[]
 ): MatchedLabel[] {
+  debug(`#findLabels`)
+
   const matches: MatchedLabel[] = []
 
   for (const fieldPath in labelMapping) {
-    const { prefix } = labelMapping[fieldPath]
+    const { prefix, color } = labelMapping[fieldPath]
     const values: string[] = nestedGet(parsedResponse, fieldPath)
 
     if (!Array.isArray(values)) continue
@@ -87,7 +92,7 @@ export function findLabels(
       if (trelloLabel) {
         matches.push({ type: 'link', id: trelloLabel.id })
       } else {
-        matches.push({ type: 'create', name: labelName })
+        matches.push({ type: 'create', name: labelName, color })
       }
     }
   }
@@ -95,7 +100,7 @@ export function findLabels(
   return matches
 }
 
-export function createCardFromFormResponse(
+export function generateCardFromFormResponse(
   formResponse: FormResponse,
   config: MappingConfig,
   trelloLables: SimpleTrelloLabel[],
@@ -108,4 +113,51 @@ export function createCardFromFormResponse(
     body: renderer({ data: response }),
     labels: findLabels(response, config.labels, trelloLables)
   }
+}
+
+export async function createCardAndMatchLabels(
+  card: NewCard,
+  trello: TrelloClient,
+  idBoard: string,
+  idList: string
+) {
+  debug(
+    `#createCardAndMatchLabels board=${idBoard} list=${idList} card=${card.title}`
+  )
+
+  const idLabels: string[] = []
+  const promises: Promise<any>[] = []
+
+  for (let label of card.labels) {
+    if (label.type === 'create') {
+      const toCreate = {
+        name: label.name,
+        color: label.color
+      }
+
+      promises.push(
+        new Promise(async (resolve, reject) => {
+          const label = await trello.createLabel(idBoard, toCreate)
+
+          debug(`Creating label ${label.id} ${label.name}`)
+
+          resolve(label.id)
+        })
+      )
+    } else {
+      debug(`Linking label ${label.id}`)
+      idLabels.push(label.id)
+    }
+  }
+
+  idLabels.push(...(await Promise.all(promises)))
+
+  const newCard = await trello.createCard(idBoard, {
+    name: card.title,
+    desc: card.body,
+    idList,
+    idLabels
+  })
+
+  return newCard
 }

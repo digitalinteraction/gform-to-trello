@@ -1,23 +1,36 @@
 import {
   parseResponse,
+  findLabels,
+  SimpleTrelloLabel,
+  generateCardFromFormResponse,
+  NewCard,
+  createCardAndMatchLabels
+} from '../processor'
+import {
   FormResponse,
   FieldMapping,
   LabelMapping,
-  findLabels,
-  SimpleTrelloLabel,
   MappingConfig,
-  createCardFromFormResponse
-} from '../processor'
+  FieldResponse
+} from '../types'
+
+function makeResponse(value: string | string[]): FieldResponse {
+  return {
+    type: 'TEXT',
+    index: 1,
+    title: 'Sample field',
+    value: value
+  }
+}
 
 describe('#parseResponse', () => {
   it('should generate an object with field ids mapped to values', () => {
     const input: FormResponse = {
-      123456: ['Hello, world!']
+      123456: makeResponse('Hello, world!')
     }
     const mapping: FieldMapping = {
       123456: {
-        path: 'message',
-        type: 'text'
+        path: 'message'
       }
     }
 
@@ -30,12 +43,11 @@ describe('#parseResponse', () => {
 
   it('should write nested values', () => {
     const input: FormResponse = {
-      123456: ['Hello, world!']
+      123456: makeResponse('Hello, world!')
     }
     const mapping: FieldMapping = {
       123456: {
-        path: 'message.text',
-        type: 'text'
+        path: 'message.text'
       }
     }
 
@@ -48,14 +60,13 @@ describe('#parseResponse', () => {
     })
   })
 
-  it('should process csv to arrays of trimmed strings', () => {
+  it('should handle array values', () => {
     const input: FormResponse = {
-      123456: ['Hello world!, My name is Geoff']
+      123456: makeResponse(['Hello world!', 'My name is Geoff'])
     }
     const mapping: FieldMapping = {
       123456: {
-        path: 'message',
-        type: 'csv'
+        path: 'message'
       }
     }
 
@@ -63,6 +74,22 @@ describe('#parseResponse', () => {
 
     expect(result).toEqual({
       message: ['Hello world!', 'My name is Geoff']
+    })
+  })
+
+  it('should default to null if not set', () => {
+    const input: FormResponse = {}
+
+    const mapping: FieldMapping = {
+      123456: {
+        path: 'message'
+      }
+    }
+
+    const result = parseResponse(input, mapping)
+
+    expect(result).toEqual({
+      message: null
     })
   })
 })
@@ -73,7 +100,7 @@ describe('#findLabels', () => {
       themes: ['Astronomy & Physics']
     }
     const labelMapping: LabelMapping = {
-      themes: { prefix: 'topic' }
+      themes: { prefix: 'topic', color: 'red' }
     }
     const trelloLabels: SimpleTrelloLabel[] = []
 
@@ -81,7 +108,8 @@ describe('#findLabels', () => {
 
     expect(result).toContainEqual({
       type: 'create',
-      name: 'topic:astronomy-and-physics'
+      name: 'topic:astronomy-and-physics',
+      color: 'red'
     })
   })
   it('should return labels to link', () => {
@@ -89,7 +117,7 @@ describe('#findLabels', () => {
       themes: ['Astronomy & Physics']
     }
     const labelMapping: LabelMapping = {
-      themes: { prefix: 'topic' }
+      themes: { prefix: 'topic', color: 'red' }
     }
     const trelloLabels: SimpleTrelloLabel[] = [
       { id: 'abcdef', name: 'topic:astronomy-and-physics' }
@@ -104,27 +132,25 @@ describe('#findLabels', () => {
   })
 })
 
-describe('#createCardFromFormResponse', () => {
+describe('#generateCardFromFormResponse', () => {
   it('should return a card to be created', () => {
     const response: FormResponse = {
-      1234: ['Some title'],
-      5678: ['Topic A, Topic B, Topic C']
+      1234: makeResponse('Some title'),
+      5678: makeResponse(['Topic A', 'Topic B', 'Topic C'])
     }
 
     const config: MappingConfig = {
       titleKey: 'title',
       fields: {
         1234: {
-          path: 'title',
-          type: 'text'
+          path: 'title'
         },
         5678: {
-          path: 'themes',
-          type: 'csv'
+          path: 'themes'
         }
       },
       labels: {
-        themes: { prefix: 'theme' }
+        themes: { prefix: 'theme', color: 'red' }
       }
     }
 
@@ -134,7 +160,7 @@ describe('#createCardFromFormResponse', () => {
 
     const renderer = jest.fn(() => 'rendered_content')
 
-    const result = createCardFromFormResponse(
+    const result = generateCardFromFormResponse(
       response,
       config,
       trelloLabels,
@@ -157,11 +183,65 @@ describe('#createCardFromFormResponse', () => {
     expect(result.labels).toContainEqual({ type: 'link', id: 'topic-a' })
     expect(result.labels).toContainEqual({
       type: 'create',
-      name: 'theme:topic-b'
+      name: 'theme:topic-b',
+      color: 'red'
     })
     expect(result.labels).toContainEqual({
       type: 'create',
-      name: 'theme:topic-c'
+      name: 'theme:topic-c',
+      color: 'red'
+    })
+  })
+})
+
+describe('#createCardAndMatchLabels', () => {
+  let trello: any
+  beforeEach(() => {
+    trello = {
+      createLabel: jest.fn(() => ({ id: 'created-label-id' })),
+      createCard: jest.fn()
+    }
+  })
+
+  it('should create labels marked "create"', async () => {
+    const card: NewCard = {
+      title: 'Some project',
+      body: 'Some body content',
+      labels: [
+        { type: 'create', name: 'theme:topic-a', color: 'green' },
+        { type: 'link', id: 'existing-label-id' }
+      ]
+    }
+    const boardId = 'board_id'
+    const listId = 'list_id'
+
+    const result = await createCardAndMatchLabels(card, trello, boardId, listId)
+
+    expect(trello.createLabel).toBeCalledWith('board_id', {
+      name: 'theme:topic-a',
+      color: 'green'
+    })
+  })
+
+  it('should create a new card with created and linked labels', async () => {
+    const card: NewCard = {
+      title: 'Some project',
+      body: 'Some body content',
+      labels: [
+        { type: 'create', name: 'theme:topic-a', color: 'green' },
+        { type: 'link', id: 'existing-label-id' }
+      ]
+    }
+    const boardId = 'board_id'
+    const listId = 'list_id'
+
+    const result = await createCardAndMatchLabels(card, trello, boardId, listId)
+
+    expect(trello.createCard).toBeCalledWith('board_id', {
+      name: 'Some project',
+      desc: 'Some body content',
+      idList: 'list_id',
+      idLabels: ['existing-label-id', 'created-label-id']
     })
   })
 })

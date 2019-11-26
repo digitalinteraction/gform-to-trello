@@ -7,13 +7,22 @@ function handleFormSubmit(e: GoogleAppsScript.Events.FormsOnFormSubmit) {
     return
   }
 
+  const token = PropertiesService.getScriptProperties().getProperty(
+    'CATALYST_HOOK_TOKEN'
+  )
+
+  if (!token) {
+    Logger.log('#handleFormSubmit CATALYST_HOOK_TOKEN property is not set')
+    return
+  }
+
   const responses = e.response.getItemResponses()
-  const output: any = {}
+  const response: any = {}
 
   for (let itemResponse of responses) {
     const item = itemResponse.getItem()
 
-    output[item.getId()] = {
+    response[item.getId()] = {
       type: item.getType().toString(),
       index: item.getIndex(),
       title: item.getTitle(),
@@ -24,7 +33,7 @@ function handleFormSubmit(e: GoogleAppsScript.Events.FormsOnFormSubmit) {
   UrlFetchApp.fetch(webhookUrl, {
     method: 'post',
     contentType: 'application/json',
-    payload: JSON.stringify(output)
+    payload: JSON.stringify({ token, response })
   })
 }
 

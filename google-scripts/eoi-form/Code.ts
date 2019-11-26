@@ -1,18 +1,24 @@
-const webhookUrl = 'https://echo.openlab.dev'
-
-// Running the code in initialize() will cause this function to be triggered this on every Form Submit
+//
+// Triggered when someone submits the google form
+// - Required x and y are set as properties
+//
 function handleFormSubmit(e: GoogleAppsScript.Events.FormsOnFormSubmit) {
   if (!e) {
     Logger.log('#handleFormSubmit No event triggered')
     return
   }
 
-  const token = PropertiesService.getScriptProperties().getProperty(
-    'CATALYST_HOOK_TOKEN'
-  )
+  const props = PropertiesService.getScriptProperties()
+
+  const token = props.getProperty('CATALYST_HOOK_TOKEN')
+  const webhookUrl = props.getProperty('CATALYST_HOOK_URL')
 
   if (!token) {
     Logger.log('#handleFormSubmit CATALYST_HOOK_TOKEN property is not set')
+    return
+  }
+  if (!webhookUrl) {
+    Logger.log('#handleFormSubmit CATALYST_HOOK_URL property is not set')
     return
   }
 
@@ -35,8 +41,4 @@ function handleFormSubmit(e: GoogleAppsScript.Events.FormsOnFormSubmit) {
     contentType: 'application/json',
     payload: JSON.stringify({ token, response })
   })
-}
-
-function hello() {
-  Logger.log('Hello, ' + webhookUrl)
 }

@@ -9,11 +9,12 @@
   "scripts": {
     "build": "tsc",
     "coverage": "jest --coverage",
-    "cli": "node -r dotenv/config -r ts-node/register src/cli.ts",
+    "cli:dev": "node -r dotenv/config -r ts-node/register src/cli.ts",
+    "cli:prod": "node dist/cli.js",
     "lint": "eslint src",
     "prettier": "prettier --write '**/*.{js,json,css,md,ts,tsx}'",
     "preversion": "npm run test -s",
-    "start": "node -r dotenv/config src/index.js",
+    "start": "npm run cli:prod ",
     "test": "jest"
   },
   "keywords": [],

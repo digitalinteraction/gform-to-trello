@@ -31,6 +31,24 @@ npx clasp open
   see [types.ts ](src/types.ts)'s MappingConfig.
 - `/app/res/content.njk` ~ A nunjucks template to generate the card description
 
+## Exploring the Trello api
+
+```bash
+source .env
+
+# fetchOrganizations
+http https://api.trello.com/1/members/me/organizations key==$TRELLO_APP_KEY token==$TRELLO_TOKEN
+
+# fetchBoards
+http https://api.trello.com/1/members/me/boards key==$TRELLO_APP_KEY token==$TRELLO_TOKEN
+
+# fetchLabels
+http https://api.trello.com/1/boards/$TRELLO_BOARD_ID/labels key==$TRELLO_APP_KEY token==$TRELLO_TOKEN
+
+# fetchLists
+http https://api.trello.com/1/boards/$TRELLO_BOARD_ID/lists key==$TRELLO_APP_KEY token==$TRELLO_TOKEN cards==open
+```
+
 ---
 
 > This project was set up by [puggle](https://npm.im/puggle)

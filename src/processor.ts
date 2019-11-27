@@ -152,7 +152,7 @@ export async function createCardAndMatchLabels(
 
   idLabels.push(...(await Promise.all(promises)))
 
-  const newCard = await trello.createCard(idBoard, {
+  const newCard = await trello.createCard({
     name: card.title,
     desc: card.body,
     idList,

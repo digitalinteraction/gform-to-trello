@@ -62,9 +62,7 @@ export class TrelloClient {
   async fetchLabels(boardId: string): Promise<TrelloLabel[]> {
     debug(`#fetchLabels board=${boardId}`)
 
-    const labels = await this.client.get(`/boards/${boardId}/labels`, {
-      query: { fields: 'all', limit: 50 }
-    })
+    const labels = await this.client.get(`/boards/${boardId}/labels`)
 
     return labels.body
   }
@@ -92,8 +90,8 @@ export class TrelloClient {
     return label.body
   }
 
-  async createCard(boardId: string, request: CardRequest): Promise<TrelloCard> {
-    debug(`#createCard board=${boardId} name=${request.name}`)
+  async createCard(request: CardRequest): Promise<TrelloCard> {
+    debug(`#createCard name=${request.name}`)
 
     const card = await this.client.post(`/cards`, {
       body: request

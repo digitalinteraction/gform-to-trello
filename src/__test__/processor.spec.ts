@@ -237,7 +237,7 @@ describe('#createCardAndMatchLabels', () => {
 
     const result = await createCardAndMatchLabels(card, trello, boardId, listId)
 
-    expect(trello.createCard).toBeCalledWith('board_id', {
+    expect(trello.createCard).toBeCalledWith({
       name: 'Some project',
       desc: 'Some body content',
       idList: 'list_id',

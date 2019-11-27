@@ -14,6 +14,7 @@
     "lint": "eslint src",
     "prettier": "prettier --write '**/*.{js,json,css,md,ts,tsx}'",
     "preversion": "npm run test -s",
+    "postversion": "git push --follow-tags",
     "start": "npm run cli:prod ",
     "test": "jest"
   },

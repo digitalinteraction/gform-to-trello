@@ -42,3 +42,13 @@ function handleFormSubmit(e: GoogleAppsScript.Events.FormsOnFormSubmit) {
     payload: JSON.stringify({ token, response })
   })
 }
+
+function onOpen(e: GoogleAppsScript.Events.FormsOnOpen) {
+  const items = e.source.getItems()
+
+  Logger.log(`form: title="${e.source.getTitle()} id="${e.source.getId()}"`)
+
+  for (let item of items) {
+    Logger.log(`field: title="${item.getTitle()}" id="${item.getId()}"`)
+  }
+}

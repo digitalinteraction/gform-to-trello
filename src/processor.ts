@@ -80,8 +80,9 @@ export function findLabels(
 
   for (const fieldPath in labelMapping) {
     const { prefix, color } = labelMapping[fieldPath]
-    const values: string[] = nestedGet(parsedResponse, fieldPath)
+    let values: string[] = nestedGet(parsedResponse, fieldPath)
 
+    if (typeof values === 'string') values = [values]
     if (!Array.isArray(values)) continue
 
     for (let value of values) {

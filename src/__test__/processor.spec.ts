@@ -130,6 +130,22 @@ describe('#findLabels', () => {
       id: 'abcdef'
     })
   })
+  it('should make labels for string values', () => {
+    const response = {
+      category: 'A.I. & algorithms'
+    }
+    const labelMapping: LabelMapping = {
+      category: { prefix: 'category', color: 'lime' }
+    }
+
+    const result = findLabels(response, labelMapping, [])
+
+    expect(result).toContainEqual({
+      type: 'create',
+      name: 'category:ai-and-algorithms',
+      color: 'lime'
+    })
+  })
 })
 
 describe('#generateCardFromFormResponse', () => {
@@ -235,7 +251,7 @@ describe('#createCardAndMatchLabels', () => {
     const boardId = 'board_id'
     const listId = 'list_id'
 
-    const result = await createCardAndMatchLabels(card, trello, boardId, listId)
+    await createCardAndMatchLabels(card, trello, boardId, listId)
 
     expect(trello.createCard).toBeCalledWith({
       name: 'Some project',

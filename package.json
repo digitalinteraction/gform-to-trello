@@ -24,6 +24,7 @@
     "node": ">=8"
   },
   "dependencies": {
+    "@openlab/trello-client": "^0.1.1",
     "chalk": "^3.0.0",
     "debug": "^4.1.1",
     "dotenv": "^8.2.0",

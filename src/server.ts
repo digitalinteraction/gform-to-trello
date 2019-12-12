@@ -2,13 +2,12 @@ import express from 'express'
 import debugFn from 'debug'
 import validateEnv from 'valid-env'
 import { FormResponseStruct } from './structs'
-import { TrelloClient } from './trello-client'
+import { TrelloClient } from '@openlab/trello-client'
 import {
   loadTemplate,
   loadMapping,
   generateCardFromFormResponse,
-  createCardAndMatchLabels,
-  NewCard
+  createCardAndMatchLabels
 } from './processor'
 import { Template } from 'nunjucks'
 import { MappingConfig } from './types'

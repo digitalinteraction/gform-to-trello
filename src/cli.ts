@@ -6,7 +6,7 @@ import chalk from 'chalk'
 import debugFn from 'debug'
 
 import { validateEnv } from 'valid-env'
-import { TrelloClient } from './trello-client'
+import { TrelloClient } from '@openlab/trello-client'
 import { runServer } from './server'
 import { TrelloColor } from './structs'
 

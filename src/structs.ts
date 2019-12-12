@@ -1,18 +1,7 @@
 import { struct } from 'superstruct'
+import { labelColors } from '@openlab/trello-client'
 
-export const TrelloColor = struct.enum([
-  'yellow',
-  'purple',
-  'blue',
-  'red',
-  'green',
-  'orange',
-  'black',
-  'sky',
-  'pink',
-  'lime',
-  null
-])
+export const TrelloColor = struct.enum(labelColors)
 
 export const FieldMappingStruct = struct({
   path: 'string'

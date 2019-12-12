@@ -9,13 +9,11 @@ import nestedSet from 'lodash.set'
 import {
   FormResponse,
   FieldMapping,
-  TrelloLabel,
   LabelMapping,
-  MappingConfig,
-  TrelloColor
+  MappingConfig
 } from './types'
 import { MappingConfigStruct } from './structs'
-import { TrelloClient } from './trello-client'
+import { TrelloClient, TrelloLabel, TrelloColor } from '@openlab/trello-client'
 
 export type SimpleTrelloLabel = Pick<TrelloLabel, 'id' | 'name'>
 

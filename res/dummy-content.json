@@ -1,0 +1,19 @@
+{
+  "matching": {
+    "industry": ["Fintech", "A.I.", "Technology"],
+    "thirdSectorDomain": ["Education"],
+    "academic": ["Data science", "Law", "Social Science"],
+    "thirdSectorGroup": []
+  },
+  "personal": {
+    "role": "DevOps Engineer",
+    "name": "Geoff Testington",
+    "email": "geoff@r0b.io"
+  },
+  "issue": {
+    "id": "Issue A",
+    "title": "The prevelance of big data in coffee machines",
+    "importance": "Nullam quis risus eget urna mollis ornare vel eu leo. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vestibulum id ligula porta felis euismod semper. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Sed posuere consectetur est at lobortis. Nullam quis risus eget urna mollis ornare vel eu leo.\n\nDonec id elit non mi porta gravida at eget metus. Donec sed odio dui. Nullam id dolor id nibh ultricies vehicula ut id elit. Donec ullamcorper nulla non metus auctor fringilla.",
+    "themes": ["Ownership", "Inclusion", "Privacy"]
+  }
+}

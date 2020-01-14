@@ -4,11 +4,13 @@ import yargs from 'yargs'
 import querystring from 'querystring'
 import chalk from 'chalk'
 import debugFn from 'debug'
+import fs from 'fs-extra'
 
 import { validateEnv } from 'valid-env'
 import { TrelloClient } from '@openlab/trello-client'
 import { runServer } from './server'
 import { TrelloColor } from './structs'
+import { loadTemplate } from './processor'
 
 const debug = debugFn('catalyst:cli')
 
@@ -192,6 +194,50 @@ yargs.command(
   wrap('server', async argv => {
     debug('server')
     runServer(argv)
+  })
+)
+
+//
+// I'm not sure what would be useful to test about the mapping
+// Maybe instead it could be an interactive generator instead, from the log comment
+//
+// yargs.command(
+//   'test:mapping [mappingFile]',
+//   'Test your mapping.yml file',
+//   yargs =>
+//     yargs.positional('mappingFile', {
+//       type: 'string',
+//       describe: 'The path to your mapping.yml',
+//       default: 'res/mapping.yml'
+//     }),
+//   wrap('test:mapping', async ({ mappingFile }) => {
+//     console.log('WIP', { mappingFile })
+//   })
+// )
+
+yargs.command(
+  'test:content [dataFile] [contentFile]',
+  'Test your content.njk file',
+  yargs =>
+    yargs
+      .positional('dataFile', {
+        type: 'string',
+        describe: 'The path to a json file to pipe into content.njk',
+        default: 'res/dummy-content.json'
+      })
+      .positional('contentFile', {
+        type: 'string',
+        describe: 'The path to your content.njk',
+        default: 'res/content.njk'
+      }),
+  wrap('test:content', async ({ dataFile, contentFile }) => {
+    const data = fs.readJSONSync(dataFile)
+
+    const template = await loadTemplate(contentFile)
+
+    const output = template.render({ data })
+
+    console.log(output)
   })
 )
 

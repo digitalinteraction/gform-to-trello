@@ -7,7 +7,8 @@ import {
   loadTemplate,
   loadMapping,
   generateCardFromFormResponse,
-  createCardAndMatchLabels
+  createCardAndMatchLabels,
+  renderTemplate
 } from './processor'
 import { Template } from 'nunjucks'
 import { MappingConfig } from './types'
@@ -41,7 +42,7 @@ export function formHookMiddleware(
         response,
         mappingConfig,
         labels,
-        data => contentTemplate.render(data)
+        data => renderTemplate(contentTemplate, data)
       )
 
       const newCard = await createCardAndMatchLabels(

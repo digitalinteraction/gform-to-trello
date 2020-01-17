@@ -235,7 +235,7 @@ yargs.command(
 
     const template = await loadTemplate(contentFile)
 
-    const output = await renderTemplate(template, { data })
+    const output = renderTemplate(template, { data })
 
     console.log(output)
   })

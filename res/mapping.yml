@@ -1,42 +1,99 @@
+#
+# These fields map google form field ids to a friendly name for processing
+# These mapped fields are available in label matching and the content template
+#
 fields:
-  380425739:
-    path: matching.industry
-  694048362:
-    path: matching.thirdSectorDomain
-  1164188933:
-    path: matching.academic
-  1237184831:
-    path: matching.thirdSectorGroup
-
-  782825089:
-    path: personal.role
   1632174838:
     path: personal.name
+  2081162578:
+    path: personal.email
+  474256043:
+    path: personal.job
+
+  227448340:
+    path: is.sector
+  283134576:
+    path: is.academic
+  717517450:
+    path: is.area
 
   813013788:
-    path: issue.id
+    path: response.call
+  1356367353:
+    path: response.focus
+  2040735592:
+    path: response.title
   735916625:
-    path: issue.title
+    path: response.exploring
   1134118836:
-    path: issue.importance
+    path: response.motivation
   1469587775:
-    path: issue.themes
+    path: response.keywords
 
-titleKey: issue.title
+  1892703549:
+    path: needs.academic
+  871832414:
+    path: needs.sector
+  1336119704:
+    path: needs.area
+
+  1963851458:
+    path: events.attending
+
+  117584897:
+    path: sharing.prefs
+
+titleKey: response.title
 
 labels:
-  matching.industry:
-    prefix: needs:industry
-    color: yellow
+  #
+  # Is
+  #
+  is.academic:
+    prefix: is:academic
+    color: pink
 
-  matching.thirdSectorDomain:
-    prefix: needs:3rd-domain
+  is.sector:
+    prefix: is:sector
+    color: pink
+
+  is.area:
+    prefix: is:area
+    color: pink
+
+  #
+  # Response
+  #
+  response.call:
+    prefix: call
+    color: green
+
+  response.focus:
+    prefix: focus
+    color: purple
+
+  response.keywords:
+    prefix: theme
+    color: blue
+
+  #
+  # Needs
+  #
+  needs.academic:
+    prefix: needs:academic
     color: orange
 
-  matching.academic:
-    prefix: needs:academic
-    color: red
+  needs.sector:
+    prefix: needs:sector
+    color: orange
 
-  matching.thirdSectorGroup:
-    prefix: needs:3rd-group
-    color: blue
+  needs.area:
+    prefix: needs:area
+    color: orange
+
+  #
+  # Sharing
+  #
+  sharing.prefs:
+    prefix: sharing
+    color: red

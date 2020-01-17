@@ -10,7 +10,7 @@ import { validateEnv } from 'valid-env'
 import { TrelloClient } from '@openlab/trello-client'
 import { runServer } from './server'
 import { TrelloColor } from './structs'
-import { loadTemplate } from './processor'
+import { loadTemplate, renderTemplate } from './processor'
 
 const debug = debugFn('catalyst:cli')
 
@@ -235,7 +235,7 @@ yargs.command(
 
     const template = await loadTemplate(contentFile)
 
-    const output = template.render({ data })
+    const output = await renderTemplate(template, { data })
 
     console.log(output)
   })

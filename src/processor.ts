@@ -39,6 +39,14 @@ export async function loadTemplate(path: string): Promise<nunjucks.Template> {
   return nunjucks.compile(await fs.readFile(path, 'utf8'))
 }
 
+export async function renderTemplate(
+  template: nunjucks.Template,
+  context: object | undefined
+) {
+  const text = await template.render(context)
+  return text.replace(/\n{2,}/gm, '\n\n').trim()
+}
+
 export async function loadMapping(path: string): Promise<MappingConfig> {
   debug(`#loadMapping path=${path}`)
   return MappingConfigStruct(yaml.parse(await fs.readFile(path, 'utf8')))

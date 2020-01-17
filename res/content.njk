@@ -1,7 +1,39 @@
-# {{ data.issue.title }}
+{% macro listItems(message, items=[]) %}
+{% if items and items.length > 0 %}
+{{message}}:
+{% for item in items %}
+- {{ item }}{% endfor %}
+{% endif %}
+{% endmacro %}
 
-## Why is this important?
+> by {{ data.personal.name }} working at {{ data.personal.job }} responding to {{ data.response.call }}
 
-{{ data.issue.importance }}
+## I am interested in exploring
 
-> contact [{{ data.personal.email }}](mailto:{{ data.personal.email }})
+{{ data.response.exploring }}
+
+## My motivation is
+
+{{ data.response.motivation }}
+
+## Project focus
+
+{{ listItems('I want to focus on', data.response.focus) }}
+
+## Collaboration
+
+{{ listItems('I am looking for an academic partner in', data.needs.academic) }}
+
+{{ listItems('I am looking for a partner in these sectors', data.needs.sector) }}
+
+{{ listItems('I am looking to work in these areas', data.needs.area) }}
+
+{% if data.events.attending %}
+## Sandpit events
+
+I am going to: {{ data.events.attending }}
+{% endif %}
+
+## Contact 
+
+[{{ data.personal.email }}](mailto:{{ data.personal.email }})

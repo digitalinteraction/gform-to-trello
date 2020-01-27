@@ -67,6 +67,8 @@ This should be mounted at `/app/res/mapping.yml`.
 It is responsible for mapping google form ids to human names
 and telling the image how to match tags.
 
+When processing, if a value is not found for that key/path it is set to `null`
+
 ```yaml
 # This sections maps google form ids to human-readable names
 fields:

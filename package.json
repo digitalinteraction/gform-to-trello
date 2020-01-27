@@ -3,7 +3,7 @@
   "description": "Setup with puggle",
   "version": "0.4.0",
   "private": true,
-  "repository": "digitalinteraction/gform-trello-magic",
+  "repository": "unplatform/gform-to-trello",
   "author": "",
   "license": "MIT",
   "scripts": {
@@ -17,7 +17,8 @@
     "postversion": "git push --follow-tags",
     "start": "npm run cli:prod ",
     "test": "jest",
-    "generate:toc": "md-toc -i"
+    "generate:toc": "md-toc -i",
+    "release": "standard-version"
   },
   "keywords": [],
   "engines": {
@@ -42,6 +43,8 @@
     "yargs": "^15.0.2"
   },
   "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
     "@google/clasp": "^2.3.0",
     "@robb_j/md-toc": "^0.3.1",
     "@types/chalk": "^2.2.0",
@@ -62,6 +65,7 @@
     "lint-staged": "^8.1.4",
     "nock": "^11.7.0",
     "prettier": "^1.16.4",
+    "standard-version": "^7.1.0",
     "ts-jest": "^24.2.0",
     "ts-node": "^8.5.2",
     "typescript": "^3.7.2",

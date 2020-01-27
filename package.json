@@ -14,7 +14,6 @@
     "lint": "eslint src",
     "prettier": "prettier --write '**/*.{js,json,css,md,ts,tsx}'",
     "preversion": "npm run test -s",
-    "postversion": "git push --follow-tags",
     "start": "npm run cli:prod ",
     "test": "jest",
     "generate:toc": "md-toc -i",
@@ -83,10 +82,14 @@
     "semi": false,
     "singleQuote": true
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+  "gitHooks": {
+    "commit-msg": "commitlint -e $HUSKY_GIT_PARAMS",
+    "pre-commit": "lint-staged"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   },
   "lint-staged": {
     "*.{js,json,css,md,ts,tsx}": [

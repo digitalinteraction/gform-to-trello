@@ -1,4 +1,11 @@
-# gform-trello-magic
+# gform-to-trello
+
+This repo is a [Node.js](https://nodejs.org/en/) server
+which reacts to [Google Form](https://www.google.com/forms/about/) submissions
+and uses templates and variables to generate [Trello](https://trello.com/home) cards.
+
+There is also a tool for generating a [Google Apps Script](https://developers.google.com/apps-script/)
+to process form responses and send data to the node server.
 
 <!-- toc-head -->
 
@@ -14,6 +21,7 @@
   - [Regular use](#regular-use)
   - [Irregular use](#irregular-use)
   - [Testing](#testing)
+  - [Commits](#commits)
   - [Code formatting](#code-formatting)
   - [Building the image](#building-the-image)
   - [Google scripts](#google-scripts)
@@ -45,7 +53,7 @@ docker run \
 - `TRELLO_INBOX_LIST_ID` ~ The list to put form responses into
 - `HOOK_SECRET` ~ A secret to authenticate creating cards
 
-> For help on trello varialbes [Setup](#setup) might be useful
+> For help on trello variables, [Setup](#setup) might be useful
 
 ### Mounted files
 
@@ -73,7 +81,7 @@ fields:
 labels:
   person.pets:  # the field to match labels on (works with any text or checkbox)
     prefix: pet # The prefix of the label, e.g. will generate pet:dog and pet:cat
-    color: lime # The color to create labels
+    color: lime # The color to create labels if they don't already exist
 ```
 
 > For more info see [types.ts](src/types.ts)'s MappingConfig.
@@ -104,9 +112,9 @@ Below is information about developing on this repo.
 
 To develop on this repo you will need to have [Docker](https://www.docker.com/) and
 [node.js](https://nodejs.org) installed on your dev machine and have an understanding of them.
-This guide assumes you have the repo checked out and are on macOS, but equivalent commands are available.
+This guide assumes you have the repo checked out and are on macOS.
 
-You will need a [trello account](https://trello.com) with access to a board to link with.
+You will need a [trello account](https://trello.com/home) with access to a board to link with.
 
 You'll only need to follow this setup once for your dev machine.
 
@@ -148,6 +156,13 @@ npm run cli:dev -- --help
 # -> Requests a valid .env ~ it'll let you know
 # -> Runs on port 3000 by default
 npm run cli:dev server
+
+# Test a content.njk
+# -> Uses res/content.njk as the template
+# -> Uses res/dummy-content.json as the data to render with
+#    Make this to the same shape your mapping.yml will produce
+# -> Outputs the generated markdown to the terminal
+npm run cli:dev test:content res/dummy-content.json
 ```
 
 ### Irregular use
@@ -165,10 +180,6 @@ npm run lint
 # -> Needs javascript to be compilled
 # -> Doesn't load the local .env
 npm run cli:prod
-
-# Manually format code
-# -> This is run automattically on git-stage
-npm run prettier
 
 # Generate the table of contents in this readme
 npm run generate:toc
@@ -192,6 +203,13 @@ npm test -s
 npm run coverage -s
 open coverage/lcov-report/index.html
 ```
+
+### Commits
+
+All commits to this repo must follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+This ensures changes are structured and means the [CHANGELOG.md](/CHANGELOG.md) can be automatically generated.
+
+This standard is enforced through a `commit-msg` hook using [yorkie](https://www.npmjs.com/package/yorkie).
 
 ### Code formatting
 
@@ -220,10 +238,15 @@ and **only** runs when you push a [tag](https://git-scm.com/book/en/v2/Git-Basic
 It pushes these docker images to the GitLab registry of the repo.
 
 ```bash
-# Deploy a new version of the CLI
+# Generate a new release
+# -> Generates a new version based on the commits since the last version
+# -> Generates the CHANGELOG.md based on those commits
 # -> There is a "preversion" script to lint & run tests
-# -> There is a "postversion" script to git push
-npm version # major | minor | patch
+npm run release
+
+# Push the new version
+# -> The GitLab CI will build a new docker image for it
+git push --follow-tags
 ```
 
 ### Google scripts
@@ -282,6 +305,7 @@ http https://api.trello.com/1/boards/$TRELLO_BOARD_ID/lists key==$TRELLO_APP_KEY
 - Look into handling Trello API pagination
 - git-ignore the `res` folder for easier testing mapping/content
 - Create an npm package with the cli to deploy the scraper and test files
+- Improve documentation for setting up of Google Apps Scripts
 
 ---
 

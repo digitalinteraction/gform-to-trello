@@ -282,3 +282,7 @@ http https://api.trello.com/1/boards/$TRELLO_BOARD_ID/lists key==$TRELLO_APP_KEY
 - Look into handling Trello API pagination
 - git-ignore the `res` folder for easier testing mapping/content
 - Create an npm package with the cli to deploy the scraper and test files
+
+---
+
+> The code on https://github.com/unplatform/gform-to-trello is a mirror of https://openlab.ncl.ac.uk/gitlab/catalyst/gform-trello-magic

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.3](https://github.com/digitalinteraction/gform-to-trello/compare/v0.4.2...v0.4.3) (2021-08-31)
+
+### Bug Fixes
+
+- update bad superstruct dep ([f84f1b3](https://github.com/digitalinteraction/gform-to-trello/commit/f84f1b306c5f0c774b33511f4781c0dbf1c8916c))
+
 ### [0.4.2](https://github.com/digitalinteraction/gform-to-trello/compare/v0.4.1...v0.4.2) (2021-08-31)
 
 ### [0.4.1](https://github.com/digitalinteraction/gform-to-trello/compare/v0.4.0...v0.4.1) (2021-08-31)
